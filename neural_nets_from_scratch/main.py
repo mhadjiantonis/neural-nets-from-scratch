@@ -1,26 +1,50 @@
 import numpy
 
-from neural_nets_from_scratch.activation_function import ReLUActivation, SoftMaxActivation
+from neural_nets_from_scratch.activation_function import (
+    SigmoidActivation,
+    SoftMaxActivation,
+)
 from neural_nets_from_scratch.layer import DenseLayer
 from neural_nets_from_scratch.model import SequentialModel
 
 if __name__ == "__main__":
 
+    # Define a model
     model = SequentialModel(
         [
-            DenseLayer(3, 40, ReLUActivation()),
-            DenseLayer(40, 10, ReLUActivation()),
-            DenseLayer(10, 5, ReLUActivation()),
-            DenseLayer(5, 1, SoftMaxActivation()),
+            DenseLayer(784, 13, SigmoidActivation()),
+            DenseLayer(13, 5, SigmoidActivation()),
+            DenseLayer(5, 10, SoftMaxActivation(temperature=1.0)),
         ]
     )
-    dataset_size = 10000
 
-    input = numpy.random.rand(dataset_size, 3) * 1000
-    print(model.forward(input))
+    X: numpy.ndarray
+    Y_labels: numpy.ndarray
+    X_test: numpy.ndarray
+    Y_test_labels: numpy.ndarray
 
-    external_errors = numpy.random.rand(dataset_size, 1)
-    model.backward(external_errors.T)
-    # print(model.get_weights())
-    model.update_weights(0.1)
-    # print(model.get_weights())
+    # Load train and test data
+    data = numpy.genfromtxt(
+        "mnist-in-csv/mnist_train.csv", dtype=int, delimiter=",", skip_header=1
+    )
+    Y_labels = data[:, 0]
+
+    data = numpy.genfromtxt(
+        "mnist-in-csv/mnist_test.csv", dtype=int, delimiter=",", skip_header=1
+    )
+    Y_test_labels = data[:, 0]
+
+    # Process data. Enforce 0 < X < 1 and one-hot encode Y.
+    X = data[:, 1:].astype(float) / 255
+    X_test = data[:, 1:].astype(float) / 255
+
+    Y = numpy.zeros((Y_labels.size, Y_labels.max() + 1), dtype=float)
+    Y[numpy.arange(Y_labels.size), Y_labels] = 1
+
+    Y_test = numpy.zeros((Y_test_labels.size, Y_test_labels.max() + 1), dtype=float)
+    Y_test[numpy.arange(Y_test_labels.size), Y_test_labels] = 1
+
+    # Train the model
+    print(f"Loss pre-training: {- numpy.sum(Y * numpy.log(model.forward(X)))}")
+
+    model.train(X, Y, X_test, Y_test, learning_rate=0.01, batch_size=200, num_epochs=15)

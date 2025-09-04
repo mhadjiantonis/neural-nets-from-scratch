@@ -11,7 +11,7 @@ class DenseLayer:
     biases: numpy.ndarray
     input: numpy.ndarray
     output: numpy.ndarray
-    derivative_output: numpy.ndarray
+    jacobian_output: numpy.ndarray
 
     def __init__(
         self,
@@ -29,15 +29,31 @@ class DenseLayer:
         self.input = input
         linear = input.dot(self.weights) + self.biases
         output = self.activation_function.func(linear)
+        # print(input.sum(axis=1), linear.sum(axis=1), output.sum(axis=1))
         self.output = output
-        self.derivative_output = self.activation_function.derivative(linear)
+        self.jacobian_output = self.activation_function.jacobian(linear)
         return output
 
     def backward(self, errors: numpy.ndarray) -> numpy.ndarray:
         self.errors = errors
-        upstream_errors = self.weights.dot(errors * self.derivative_output.T)
+        upstream_errors = numpy.einsum(
+            "jm,imk,ki->ji",
+            self.weights,
+            self.jacobian_output,
+            errors,
+        )
         return upstream_errors
 
     def update_weights(self, learning_rate: float):
-        self.biases -= learning_rate * numpy.sum(self.errors * self.derivative_output.T)
-        self.weights -= numpy.dot(self.input.T, self.errors.T * self.derivative_output)
+        d_biases = learning_rate * numpy.einsum(
+            "ijk,ki", self.jacobian_output, self.errors, optimize=True
+        )
+        d_weights = learning_rate * numpy.einsum(
+            "ij,ikl,li->jk",
+            self.input,
+            self.jacobian_output,
+            self.errors,
+            optimize=True,
+        )
+        self.biases -= d_biases
+        self.weights -= d_weights

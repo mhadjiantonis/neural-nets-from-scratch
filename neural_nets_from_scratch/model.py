@@ -1,6 +1,7 @@
 import numpy
 
 from .layer import DenseLayer
+from .utils import shuffle_data
 
 
 class SequentialModel:
@@ -40,3 +41,36 @@ class SequentialModel:
             for i, layer in enumerate(self.layers)
         }
         return weights
+
+    def train(
+        self,
+        X: numpy.ndarray,
+        Y: numpy.ndarray,
+        X_test: numpy.ndarray,
+        Y_test: numpy.ndarray,
+        *,
+        learning_rate: float = 0.1,
+        batch_size: int = 200,
+        num_epochs: int = 5,
+    ):
+        if X.shape[0] != Y.shape[0]:
+            raise ValueError("X and Y must have the same number of rows")
+
+        sample_size = X.shape[0]
+
+        for epoch in range(num_epochs):
+            X_epoch, Y_epoch = shuffle_data(X, Y)
+            i = 0
+            while i < sample_size:
+                # print(f"Training on batch {i // batch_size + 1}")
+                X_batch = X_epoch[i : min(sample_size, i + batch_size)]
+                Y_batch = Y_epoch[i : min(sample_size, i + batch_size)]
+                outpupt = self.forward(X_batch)
+                # print(numpy.sum(Y_batch * numpy.log(outpupt)))
+                errors = -Y_batch / outpupt
+                self.backward(errors.T)
+                self.update_weights(learning_rate=learning_rate)
+                i += batch_size
+            print(
+                f"Loss at end of epoch {epoch + 1}: {- numpy.sum(Y_test * numpy.log(self.forward(X_test)))}"
+            )
