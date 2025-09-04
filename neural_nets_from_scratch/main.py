@@ -27,16 +27,17 @@ if __name__ == "__main__":
     data = numpy.genfromtxt(
         "mnist-in-csv/mnist_train.csv", dtype=int, delimiter=",", skip_header=1
     )
-    Y_labels = data[:, 0]
 
-    data = numpy.genfromtxt(
+    data_test = numpy.genfromtxt(
         "mnist-in-csv/mnist_test.csv", dtype=int, delimiter=",", skip_header=1
     )
-    Y_test_labels = data[:, 0]
 
     # Process data. Enforce 0 < X < 1 and one-hot encode Y.
     X = data[:, 1:].astype(float) / 255
-    X_test = data[:, 1:].astype(float) / 255
+    X_test = data_test[:, 1:].astype(float) / 255
+
+    Y_labels = data[:, 0]
+    Y_test_labels = data_test[:, 0]
 
     Y = numpy.zeros((Y_labels.size, Y_labels.max() + 1), dtype=float)
     Y[numpy.arange(Y_labels.size), Y_labels] = 1
@@ -48,3 +49,13 @@ if __name__ == "__main__":
     print(f"Loss pre-training: {- numpy.sum(Y * numpy.log(model.forward(X)))}")
 
     model.train(X, Y, X_test, Y_test, learning_rate=0.01, batch_size=200, num_epochs=15)
+
+    print(
+        numpy.concat(
+            (
+                Y_test_labels.reshape((-1, 1)),
+                model.forward(X_test).argmax(axis=1, keepdims=True),
+            ),
+            axis=1,
+        )
+    )
