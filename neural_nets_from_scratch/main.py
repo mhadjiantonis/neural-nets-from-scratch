@@ -51,6 +51,8 @@ if __name__ == "__main__":
 
     model.train(X, Y, X_test, Y_test, learning_rate=0.01, batch_size=200, num_epochs=15)
 
+    model.save("model.pickle")
+
     print(
         pandas.crosstab(
             Y_test_labels,
@@ -59,3 +61,5 @@ if __name__ == "__main__":
             colnames=["predicted"],
         )
     )
+
+    model1 = SequentialModel.load("model.pickle")

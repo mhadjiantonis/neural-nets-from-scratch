@@ -1,3 +1,6 @@
+import pickle
+from typing import Self
+
 import numpy
 
 from .layer import DenseLayer
@@ -78,3 +81,15 @@ class SequentialModel:
             print(
                 f"Loss at end of epoch {epoch + 1}: {- numpy.sum(Y_test * numpy.log(self.forward(X_test)))}"
             )
+
+    def save(self, path: str):
+        with open(path, "wb") as file:
+            pickle.dump(self, file)
+
+    @classmethod
+    def load(cls, path: str) -> Self:
+        with open(path, "rb") as file:
+            model = pickle.load(file)
+        if not isinstance(model, cls):
+            raise TypeError("File does not contain a valid model")
+        return model
