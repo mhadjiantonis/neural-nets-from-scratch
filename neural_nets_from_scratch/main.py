@@ -1,4 +1,5 @@
 import numpy
+import pandas
 
 from neural_nets_from_scratch.activation_function import (
     SigmoidActivation,
@@ -18,10 +19,10 @@ if __name__ == "__main__":
         ]
     )
 
-    X: numpy.ndarray
-    Y_labels: numpy.ndarray
-    X_test: numpy.ndarray
-    Y_test_labels: numpy.ndarray
+    X: numpy.typing.NDArray[numpy.float64]
+    Y_labels: numpy.typing.NDArray[numpy.int64]
+    X_test: numpy.typing.NDArray[numpy.float64]
+    Y_test_labels: numpy.typing.NDArray[numpy.int64]
 
     # Load train and test data
     data = numpy.genfromtxt(
@@ -51,11 +52,10 @@ if __name__ == "__main__":
     model.train(X, Y, X_test, Y_test, learning_rate=0.01, batch_size=200, num_epochs=15)
 
     print(
-        numpy.concat(
-            (
-                Y_test_labels.reshape((-1, 1)),
-                model.forward(X_test).argmax(axis=1, keepdims=True),
-            ),
-            axis=1,
+        pandas.crosstab(
+            Y_test_labels,
+            model.forward(X_test).argmax(axis=1),
+            rownames=["real"],
+            colnames=["predicted"],
         )
     )

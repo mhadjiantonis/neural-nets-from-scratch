@@ -6,22 +6,30 @@ import numpy
 class ActivationFunction(ABC):
 
     @abstractmethod
-    def func(self, a: numpy.ndarray) -> numpy.ndarray:
+    def func(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         pass
 
     @abstractmethod
-    def jacobian(self, a: numpy.ndarray) -> numpy.ndarray:
+    def jacobian(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         pass
 
 
 class ReLUActivation(ActivationFunction):
 
-    def func(self, a: numpy.ndarray) -> numpy.ndarray:
+    def func(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         result = a.clip(min=0.0)
         result = result / result.sum(axis=1, keepdims=True)
         return result
 
-    def jacobian(self, a: numpy.ndarray) -> numpy.ndarray:
+    def jacobian(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         func = self.func(a)
         step = numpy.where(a > 0.0, 1.0, 0.0) / a.clip(min=0.0).sum(
             axis=1, keepdims=True
@@ -40,11 +48,15 @@ class SoftMaxActivation(ActivationFunction):
         super().__init__()
         self.temperature = temperature
 
-    def func(self, a: numpy.ndarray) -> numpy.ndarray:
+    def func(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         exp = numpy.exp(a / self.temperature)
         return exp / exp.sum(axis=1, keepdims=True)
 
-    def jacobian(self, a: numpy.ndarray) -> numpy.ndarray:
+    def jacobian(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         func = self.func(a)
         jacobian = (
             numpy.einsum("ij,jk->ijk", func, numpy.eye(func.shape[1]), optimize=True)
@@ -55,11 +67,15 @@ class SoftMaxActivation(ActivationFunction):
 
 class SigmoidActivation(ActivationFunction):
 
-    def func(self, a: numpy.ndarray) -> numpy.ndarray:
+    def func(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         result = 1.0 / (1.0 + numpy.exp(-a))
         return result
 
-    def jacobian(self, a: numpy.ndarray) -> numpy.ndarray:
+    def jacobian(
+        self, a: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         derivatives = numpy.exp(-a) / numpy.pow(1.0 + numpy.exp(-a), 2)
         jacobian = numpy.einsum(
             "ij,jk->ijk", derivatives, numpy.eye(derivatives.shape[1]), optimize=True

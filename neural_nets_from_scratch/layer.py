@@ -7,11 +7,11 @@ class DenseLayer:
     input_size: int
     output_size: int
     activation_function: ActivationFunction
-    weights: numpy.ndarray
-    biases: numpy.ndarray
-    input: numpy.ndarray
-    output: numpy.ndarray
-    jacobian_output: numpy.ndarray
+    weights: numpy.typing.NDArray[numpy.float64]
+    biases: numpy.typing.NDArray[numpy.float64]
+    input: numpy.typing.NDArray[numpy.float64]
+    output: numpy.typing.NDArray[numpy.float64]
+    jacobian_output: numpy.typing.NDArray[numpy.float64]
 
     def __init__(
         self,
@@ -25,7 +25,9 @@ class DenseLayer:
         self.weights = numpy.random.rand(input_size, output_size) - 0.5
         self.biases = numpy.random.rand(output_size) - 0.5
 
-    def forward(self, input: numpy.ndarray) -> numpy.ndarray:
+    def forward(
+        self, input: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         self.input = input
         linear = input.dot(self.weights) + self.biases
         output = self.activation_function.func(linear)
@@ -34,7 +36,9 @@ class DenseLayer:
         self.jacobian_output = self.activation_function.jacobian(linear)
         return output
 
-    def backward(self, errors: numpy.ndarray) -> numpy.ndarray:
+    def backward(
+        self, errors: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         self.errors = errors
         upstream_errors = numpy.einsum(
             "jm,imk,ki->ji",

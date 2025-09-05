@@ -20,13 +20,15 @@ class SequentialModel:
                 )
         self.layers.append(layer)
 
-    def forward(self, input: numpy.ndarray) -> numpy.ndarray:
+    def forward(
+        self, input: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.float64]:
         activations = input
         for layer in self.layers:
             activations = layer.forward(activations)
         return activations
 
-    def backward(self, external_errors: numpy.ndarray):
+    def backward(self, external_errors: numpy.typing.NDArray[numpy.float64]):
         errors = external_errors
         for layer in reversed(self.layers):
             errors = layer.backward(errors)
@@ -35,7 +37,9 @@ class SequentialModel:
         for layer in self.layers:
             layer.update_weights(learning_rate)
 
-    def get_weights(self) -> dict[int, dict[str, numpy.ndarray]]:
+    def get_weights(
+        self,
+    ) -> dict[int, dict[str, numpy.typing.NDArray[numpy.float64]]]:
         weights = {
             i: {"weights": layer.weights, "biases": layer.biases}
             for i, layer in enumerate(self.layers)
@@ -44,10 +48,10 @@ class SequentialModel:
 
     def train(
         self,
-        X: numpy.ndarray,
-        Y: numpy.ndarray,
-        X_test: numpy.ndarray,
-        Y_test: numpy.ndarray,
+        X: numpy.typing.NDArray[numpy.float64],
+        Y: numpy.typing.NDArray[numpy.float64],
+        X_test: numpy.typing.NDArray[numpy.float64],
+        Y_test: numpy.typing.NDArray[numpy.float64],
         *,
         learning_rate: float = 0.1,
         batch_size: int = 200,
