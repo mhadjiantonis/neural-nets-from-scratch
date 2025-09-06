@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "neural-nets-from-scratch"
 version = "0.1.0"
-description = ""
-authors = ["Marios Hadjiantonis <marios.hadjiantonis@truecaller.com>"]
+description = "Educational neural network framework in pure Python/NumPy, featuring custom layers, activations, and MNIST training from scratch."
+authors = ["Marios Hadjiantonis <mhadjiantonis@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
