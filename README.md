@@ -15,7 +15,7 @@ This repository implements a simple feedforward neural network framework in Pyth
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.12+
 - Poetry for dependency management
 
 ### Installation
@@ -29,7 +29,7 @@ cd neural-nets-from-scratch
 ```bash
 poetry install
 ```
-3. Download or place the MNIST CSV files in the `mnist-in-csv` directory.
+3. Download or place the MNIST CSV files in the `mnist-in-csv` directory. The dataset in CSV format can be obtained for example from [Kaggle](https://www.kaggle.com/datasets/oddrationale/mnist-in-csv).
 
 ### Usage
 
