@@ -56,7 +56,7 @@ if __name__ == "__main__":
     print(
         pandas.crosstab(
             Y_test_labels,
-            model.forward(X_test).argmax(axis=1),
+            model.predict_labels(X_test),
             rownames=["real"],
             colnames=["predicted"],
         )

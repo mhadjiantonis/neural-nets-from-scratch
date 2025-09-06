@@ -1,4 +1,5 @@
 import pickle
+from pathlib import Path
 from typing import Self
 
 import numpy
@@ -82,12 +83,19 @@ class SequentialModel:
                 f"Loss at end of epoch {epoch + 1}: {- numpy.sum(Y_test * numpy.log(self.forward(X_test)))}"
             )
 
-    def save(self, path: str):
+    def predict_labels(
+        self, input: numpy.typing.NDArray[numpy.float64]
+    ) -> numpy.typing.NDArray[numpy.int64]:
+        output = self.forward(input)
+        labels = output.argmax(axis=1)
+        return labels
+
+    def save(self, path: str | Path):
         with open(path, "wb") as file:
             pickle.dump(self, file)
 
     @classmethod
-    def load(cls, path: str) -> Self:
+    def load(cls, path: str | Path) -> Self:
         with open(path, "rb") as file:
             model = pickle.load(file)
         if not isinstance(model, cls):
